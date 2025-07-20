@@ -105,3 +105,10 @@ if __name__ == "__main__":
     # 5. Compare models
     print("\n✅ Model training and evaluation completed.")
     print("🔍 Compare AUC-PR and F1-score to choose the best model.")
+import joblib
+
+# After training Logistic Regression
+joblib.dump(lr_model, 'models/logistic_regression_model.pkl')
+
+# After training LightGBM
+lgbm_model.booster_.save_model('models/lightgbm_model.txt')
