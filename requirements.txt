@@ -4,3 +4,7 @@ imbalanced-learn
 matplotlib
 seaborn
 jupyter
+numpy
+joblib
+shap
+lightgbm
