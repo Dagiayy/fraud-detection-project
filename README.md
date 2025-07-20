@@ -1,57 +1,63 @@
-# Fraud Detection Project - Adey Innovations Inc.
 
-## Overview
+# 🛡️ Fraud Detection Project - Adey Innovations Inc.
 
-This project aims to build robust fraud detection models for e-commerce and banking transactions. The main objectives include improving fraud detection accuracy while balancing security and user experience by addressing class imbalance, engineering meaningful features, and applying interpretable machine learning models.
+## 📌 Overview
+
+This project aims to build robust, interpretable machine learning models to detect fraudulent activities in e-commerce and banking transactions. The core objectives include:
+
+* Enhancing fraud detection accuracy.
+* Tackling class imbalance effectively.
+* Engineering meaningful and insightful features.
+* Maintaining a balance between security and user experience.
 
 ---
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 fraud-detection-project/
 │
 ├── data/
-│   ├── raw/                  # Original datasets (e.g., Fraud_Data.csv, IpAddress_to_Country.csv)
-│   └── processed/            # Cleaned, feature-engineered, and preprocessed data ready for modeling
+│   ├── raw/                     # Original datasets (e.g., Fraud_Data.csv, IpAddress_to_Country.csv)
+│   └── processed/               # Cleaned, feature-engineered, and preprocessed datasets
 │
 ├── src/
 │   ├── utils/
-│   │   └── preprocessor.py   # Data cleaning, feature encoding, scaling, and class balancing pipeline
+│   │   └── preprocessor.py      # Preprocessing pipeline: cleaning, encoding, scaling, and balancing
 │   │
 │   ├── models/
-│   │   └── train_models.py   # Model training, evaluation, and persistence (to be implemented)
+│   │   └── train_models.py      # Model training and evaluation logic (coming soon)
 │   │
 │   └── notebooks/
-│       └── 01_eda_fraud_data.ipynb  # Exploratory Data Analysis and Feature Engineering
+│       └── 01_eda_fraud_data.ipynb   # EDA and feature engineering notebook
 │
-├── reports/                  # Project reports, analyses, and visualizations
-├── requirements.txt          # Python dependencies
-└── README.md                 # Project documentation (this file)
+├── reports/                     # Visualizations, analysis results, and project reports
+├── requirements.txt             # Project dependencies
+└── README.md                    # Project documentation (this file)
 ```
 
 ---
 
-## Setup Instructions
+## ⚙️ Setup Instructions
 
-1. **Clone the repository:**
+### 1. Clone the Repository
 
 ```bash
 git clone <your-repo-url>
 cd fraud-detection-project
 ```
 
-2. **Create and activate a virtual environment:**
+### 2. Create a Virtual Environment
 
 ```bash
 python -m venv venv
-# On macOS/Linux
+# macOS/Linux
 source venv/bin/activate
-# On Windows
+# Windows
 venv\Scripts\activate
 ```
 
-3. **Install dependencies:**
+### 3. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
@@ -59,67 +65,80 @@ pip install -r requirements.txt
 
 ---
 
-## Usage
+## 🚀 How to Use
 
-### 1. Data Preprocessing
+### 🔧 Preprocess the Data
 
-Run the preprocessing script to clean, encode, scale, and balance the dataset:
+Run the preprocessing pipeline to clean, encode, scale, and balance your dataset:
 
 ```bash
 python src/utils/preprocessor.py
 ```
 
-* This script loads raw or intermediate processed data (`data/raw/Fraud_Data.csv` or `data/processed/processed_fraud_data.csv`).
-* It performs transformations including handling datetime features, encoding categorical variables (while managing high-cardinality columns), scaling numeric features, and balancing classes using SMOTE.
-* The final processed dataset is saved in `data/processed/processed_fraud_data.csv` for downstream modeling.
+* Inputs: `data/raw/Fraud_Data.csv`
+* Outputs: `data/processed/processed_fraud_data.csv`
+* Includes: datetime handling, SMOTE oversampling, encoding (with high-cardinality management), and scaling
 
-### 2. Exploratory Data Analysis & Feature Engineering
+---
 
-Launch the Jupyter notebook for detailed EDA and feature engineering:
+### 📊 Exploratory Data Analysis
+
+Launch the EDA notebook:
 
 ```bash
 jupyter notebook src/notebooks/01_eda_fraud_data.ipynb
 ```
 
-* Investigate data distributions, missing values, and correlations.
-* Engineer new features such as time-based metrics (hour of day, day of week, time since signup) and geolocation mapping from IP addresses.
+* Understand feature distributions, trends, and anomalies
+* Engineer features like:
 
-### 3. Model Training and Evaluation *(Planned)*
-
-* Scripts will train machine learning models such as Logistic Regression, Random Forest, and LightGBM.
-* Models will be evaluated with metrics appropriate for imbalanced datasets like AUC-PR and F1-Score.
-* SHAP (SHapley Additive exPlanations) will be integrated for model interpretability and explainability.
+  * Time since signup/login
+  * IP-to-country mapping
+  * Device/browser indicators
 
 ---
 
-## Key Features
+### 🧠 Model Training *(Coming Soon)*
 
-* **Class Imbalance Handling:** Implements SMOTE oversampling and random undersampling to address imbalanced fraud classes.
-* **Robust Feature Engineering:** Includes temporal features, IP-based geolocation, and careful encoding of categorical variables while managing high-cardinality features to avoid memory issues.
-* **Modular Pipeline:** Clean separation of preprocessing, exploratory analysis, and modeling components for maintainability and extensibility.
-* **Explainable AI:** Planned integration of SHAP to make model decisions interpretable.
+* Will include training with:
+
+  * Logistic Regression
+  * Random Forest
+  * LightGBM
+* Evaluation with:
+
+  * AUC-PR
+  * F1-score
+* Explanation with:
+
+  * SHAP (model interpretability)
 
 ---
 
-## Dependencies
+## ✨ Key Features
+
+* ✅ **Class Imbalance Handling:** SMOTE + undersampling
+* 🔍 **Feature Engineering:** Time-based, geolocation, and behavior-derived features
+* 🧱 **Modular Architecture:** Clean separation of code components
+* 🧠 **Explainability-First:** SHAP integration for interpretability (planned)
+
+---
+
+## 📦 Requirements
 
 * Python 3.8+
-* pandas
-* scikit-learn
-* imbalanced-learn
-* matplotlib, seaborn (for visualization in notebooks)
-* Jupyter Notebook
+* `pandas`, `scikit-learn`, `imbalanced-learn`
+* `matplotlib`, `seaborn`
+* `jupyter`
 
-Full dependency list in `requirements.txt`.
+See full list in `requirements.txt`.
 
 ---
 
-## Notes
+## ⚠️ Notes
 
-* The preprocessing script drops high-cardinality columns like `user_id`, `device_id`, and `ip_address` during encoding to prevent memory overflow issues.
-* Always apply data balancing (e.g., SMOTE) **only on training data** during model development to avoid data leakage.
-* This project is a work in progress — model training and deployment scripts will be added in upcoming iterations.
+* High-cardinality columns (e.g., `user_id`, `ip_address`) are dropped to reduce memory usage.
+* Avoid applying SMOTE on the test set to prevent data leakage.
+* The modeling component is still under development.
 
 ---
-
-
