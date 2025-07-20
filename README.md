@@ -1,7 +1,7 @@
 
-# 🛡️ Fraud Detection Project - Adey Innovations Inc.
+# Fraud Detection Project - Adey Innovations Inc.
 
-## 📌 Overview
+## Overview
 
 This project aims to build robust, interpretable machine learning models to detect fraudulent activities in e-commerce and banking transactions. The core objectives include:
 
@@ -12,7 +12,7 @@ This project aims to build robust, interpretable machine learning models to dete
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 fraud-detection-project/
@@ -38,7 +38,7 @@ fraud-detection-project/
 
 ---
 
-## ⚙️ Setup Instructions
+## Setup Instructions
 
 ### 1. Clone the Repository
 
@@ -65,9 +65,9 @@ pip install -r requirements.txt
 
 ---
 
-## 🚀 How to Use
+## How to Use
 
-### 🔧 Preprocess the Data
+### Preprocess the Data
 
 Run the preprocessing pipeline to clean, encode, scale, and balance your dataset:
 
@@ -81,7 +81,7 @@ python src/utils/preprocessor.py
 
 ---
 
-### 📊 Exploratory Data Analysis
+### Exploratory Data Analysis
 
 Launch the EDA notebook:
 
@@ -98,7 +98,7 @@ jupyter notebook src/notebooks/01_eda_fraud_data.ipynb
 
 ---
 
-### 🧠 Model Training *(Coming Soon)*
+### Model Training (Coming Soon)
 
 * Will include training with:
 
@@ -115,16 +115,16 @@ jupyter notebook src/notebooks/01_eda_fraud_data.ipynb
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-* ✅ **Class Imbalance Handling:** SMOTE + undersampling
-* 🔍 **Feature Engineering:** Time-based, geolocation, and behavior-derived features
-* 🧱 **Modular Architecture:** Clean separation of code components
-* 🧠 **Explainability-First:** SHAP integration for interpretability (planned)
+* Class Imbalance Handling: SMOTE + undersampling
+* Feature Engineering: Time-based, geolocation, and behavior-derived features
+* Modular Architecture: Clean separation of code components
+* Explainability-First: SHAP integration for interpretability (planned)
 
 ---
 
-## 📦 Requirements
+## Requirements
 
 * Python 3.8+
 * `pandas`, `scikit-learn`, `imbalanced-learn`
@@ -135,7 +135,7 @@ See full list in `requirements.txt`.
 
 ---
 
-## ⚠️ Notes
+## Notes
 
 * High-cardinality columns (e.g., `user_id`, `ip_address`) are dropped to reduce memory usage.
 * Avoid applying SMOTE on the test set to prevent data leakage.
