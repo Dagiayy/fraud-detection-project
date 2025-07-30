@@ -1,7 +1,7 @@
 
 # Fraud Detection Project - Adey Innovations Inc.
 
-## Overview
+## 📌 Overview
 
 This project aims to build robust fraud detection models for e-commerce and banking transactions. The objectives include improving fraud detection accuracy while balancing security and user experience by:
 - Addressing class imbalance,
@@ -10,7 +10,7 @@ This project aims to build robust fraud detection models for e-commerce and bank
 
 ---
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 
@@ -41,16 +41,16 @@ fraud-detection-project/
 
 ---
 
-## Setup Instructions
+## ⚙️ Setup Instructions
 
-1. **Clone the repository:**
+### 1. Clone the repository
 
 ```bash
 git clone <your-repo-url>
 cd fraud-detection-project
 ````
 
-2. **Create and activate a virtual environment:**
+### 2. Create and activate a virtual environment
 
 ```bash
 python -m venv venv
@@ -60,15 +60,15 @@ source venv/bin/activate
 venv\Scripts\activate
 ```
 
-3. **Install dependencies:**
+### 3. Install dependencies
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements.txt --timeout 100
 ```
 
 ---
 
-## Usage
+## 🚀 Usage Guide
 
 ### 1. Data Preprocessing
 
@@ -78,109 +78,129 @@ Run the preprocessing script to clean, encode, scale, and balance the dataset:
 python src/utils/preprocessor.py
 ```
 
-Key processing steps:
+Key transformations:
 
 * Datetime feature extraction
-* IP-based geolocation enrichment
-* Categorical encoding (with high-cardinality filtering)
-* Scaling and SMOTE-based balancing
+* IP-to-country enrichment
+* One-hot or label encoding for categorical variables
+* Feature scaling and class balancing via SMOTE
 
-Final output: `data/processed/processed_fraud_data.csv`
+➡️ Final output: `data/processed/processed_fraud_data.csv`
 
 ---
 
 ### 2. Exploratory Data Analysis & Feature Engineering
 
-Run the EDA notebook:
+Launch the notebook to visualize data insights and engineer new features:
 
 ```bash
 jupyter notebook src/notebooks/01_eda_fraud_data.ipynb
 ```
 
-Insights include:
+Highlights:
 
-* Distributions of transaction types, devices, and categories
-* Fraud patterns across time, location, and user behavior
-* Engineered features such as:
+* Temporal fraud patterns (e.g., weekend, signup delay)
+* Transaction volume per country and category
+* Creation of behavior-driven features:
 
-  * `hour`, `day_of_week`, `time_since_signup`
-  * Mapped country from IP address
+  * `hour`, `day_of_week`, `time_since_signup`, etc.
+  * Country risk derived from IP address
 
 ---
 
 ### 3. Model Training and Evaluation
 
-Train and evaluate classification models:
+Train and evaluate classification models in:
 
 ```bash
 jupyter notebook src/notebooks/02_model_training.ipynb
 ```
 
-Models include:
+Models used:
 
 * Logistic Regression
-* LightGBM (selected as best performer)
+* LightGBM (selected best model)
 
-Metrics:
+Evaluation metrics:
 
-* ROC-AUC, PR-AUC
-* F1-Score, precision, recall (with focus on fraud class)
+* Precision, Recall, F1-Score (emphasis on recall for fraud)
+* ROC-AUC and PR-AUC
 
-Best model is saved to:
+📁 Models saved as:
 
-* `models/lightgbm_model.txt`
 * `models/logistic_regression_model.pkl`
+* `models/lightgbm_model.txt`
 
 ---
 
-### 4. Model Explainability (SHAP)
+### 4. Model Explainability with SHAP
 
-Visualize and explain model predictions using SHAP:
+Interpret model behavior using SHAP:
 
 ```bash
 jupyter notebook src/notebooks/03_model_explainability.ipynb
 ```
 
-Interpretability analysis includes:
+Visuals and insights:
 
-* **SHAP Summary Plot**: Global feature importance across all predictions
-* **SHAP Force Plot**: Local explanation of individual fraud predictions
+* **SHAP Summary Plot**: Global feature importance
+* **SHAP Force Plot**: How individual features push predictions toward fraud or non-fraud
 
-Key insights:
+Key Findings:
 
-* Certain features (e.g., transaction amount, signup day, country risk level) significantly influence fraud detection
-* Force plots provide transparency into how the model flags individual transactions
+* Fraud likelihood increases with:
 
----
+  * Higher transaction amounts
+  * Shorter time since signup
+  * Certain risky countries or device behaviors
 
-## Key Features
-
-* ✅ **Class Imbalance Handling**: Uses SMOTE and undersampling techniques
-* ✅ **Feature Engineering**: Includes geolocation, temporal, and behavior-based features
-* ✅ **Interpretable Models**: SHAP-based insights into LightGBM decision-making
-* ✅ **Modular Pipeline**: Preprocessing, EDA, modeling, and explainability are separated for clarity
+SHAP enhances trust and compliance by offering transparency into decision logic.
 
 ---
 
-## Dependencies
+## 🔍 Key Features
+
+* ✅ **Class Imbalance Handling**: SMOTE and undersampling applied only to training sets
+* ✅ **Robust Feature Engineering**: Incorporates time, geolocation, and behavioral signals
+* ✅ **Explainability**: SHAP plots for local and global interpretability
+* ✅ **Modular Workflow**: Clean separation of scripts, notebooks, and data assets
+* ✅ **Reproducibility**: All preprocessing, training, and evaluation steps are automated and reproducible
+
+---
+
+## 🧩 Dependencies
 
 * Python 3.8+
 * pandas, numpy
 * scikit-learn
 * lightgbm
-* imbalanced-learn
 * shap
+* imbalanced-learn
 * matplotlib, seaborn
 * jupyter
 
-All listed in `requirements.txt`
+Install all using:
+
+```bash
+pip install -r requirements.txt
+```
 
 ---
 
-## Notes
+## 📝 Notes
 
-* `user_id`, `device_id`, and `ip_address` are excluded to avoid overfitting and memory overload during encoding.
-* Class balancing is only applied on the training set to prevent leakage.
-* All modeling and SHAP explainability steps are now complete.
+* High-cardinality columns (`user_id`, `device_id`, `ip_address`) are excluded during encoding to prevent memory overload.
+* SMOTE is applied **only to training data** to avoid data leakage.
+* All model and SHAP steps are complete and reproducible in notebooks.
 
 ---
+
+## 📈 Results
+
+* **LightGBM** achieved the best recall and AUC for identifying fraudulent transactions.
+* **SHAP** analysis confirmed that model decisions align with real-world fraud signals.
+* Project balances performance and interpretability, making it suitable for regulated environments.
+
+---
+
+
