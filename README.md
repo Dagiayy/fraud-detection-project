@@ -3,13 +3,10 @@
 
 ## Overview
 
-This project aims to build robust, interpretable machine learning models to detect fraudulent activities in e-commerce and banking transactions. The core objectives include:
-
-* Enhancing fraud detection accuracy.
-* Tackling class imbalance effectively.
-* Engineering meaningful and insightful features.
-* Maintaining a balance between security and user experience.
-* Providing a modular, maintainable, and extensible codebase for fraud analytics.
+This project aims to build robust fraud detection models for e-commerce and banking transactions. The objectives include improving fraud detection accuracy while balancing security and user experience by:
+- Addressing class imbalance,
+- Engineering meaningful features, and
+- Applying interpretable machine learning models using SHAP.
 
 ---
 
@@ -20,22 +17,25 @@ This project aims to build robust, interpretable machine learning models to dete
 fraud-detection-project/
 │
 ├── data/
-│   ├── raw/                     # Original datasets (e.g., Fraud\_Data.csv, IpAddress\_to\_Country.csv)
-│   └── processed/               # Cleaned, feature-engineered, and preprocessed datasets
+│   ├── raw/                      # Original datasets (e.g., Fraud\_Data.csv, IpAddress\_to\_Country.csv)
+│   └── processed/                # Cleaned, feature-engineered, and preprocessed data
 │
 ├── src/
 │   ├── utils/
-│   │   └── preprocessor.py      # Preprocessing pipeline: cleaning, encoding, scaling, and balancing
+│   │   └── preprocessor.py       # Data cleaning, feature encoding, scaling, and balancing pipeline
 │   │
 │   ├── models/
-│   │   └── train\_models.py      # Model training and evaluation scripts
+│   │   └── train\_models.py       # Model training and evaluation pipeline
 │   │
 │   └── notebooks/
-│       └── 01\_eda\_fraud\_data.ipynb   # EDA and feature engineering notebook
+│       ├── 01\_eda\_fraud\_data.ipynb        # EDA and Feature Engineering
+│       ├── 02\_model\_training.ipynb        # Model training and comparison (Logistic Regression, LightGBM)
+│       └── 03\_model\_explainability.ipynb  # SHAP-based model interpretability
 │
-├── reports/                     # Visualizations, analysis results, and project reports
-├── requirements.txt             # Project dependencies
-└── README.md                    # Project documentation (this file)
+├── reports/                    # Project write-ups, insights, and submission reports
+├── models/                     # Serialized models (e.g., .pkl, .txt)
+├── requirements.txt            # Python dependencies
+└── README.md                   # Project documentation (this file)
 
 ````
 
@@ -43,24 +43,24 @@ fraud-detection-project/
 
 ## Setup Instructions
 
-### 1. Clone the Repository
+1. **Clone the repository:**
 
 ```bash
 git clone <your-repo-url>
 cd fraud-detection-project
 ````
 
-### 2. Create and Activate a Virtual Environment
+2. **Create and activate a virtual environment:**
 
 ```bash
 python -m venv venv
-# macOS/Linux
+# On macOS/Linux
 source venv/bin/activate
-# Windows
+# On Windows
 venv\Scripts\activate
 ```
 
-### 3. Install Project Dependencies
+3. **Install dependencies:**
 
 ```bash
 pip install -r requirements.txt
@@ -68,7 +68,7 @@ pip install -r requirements.txt
 
 ---
 
-## How to Use
+## Usage
 
 ### 1. Data Preprocessing
 
@@ -78,79 +78,109 @@ Run the preprocessing script to clean, encode, scale, and balance the dataset:
 python src/utils/preprocessor.py
 ```
 
-* **Input:** Raw dataset at `data/raw/Fraud_Data.csv`
-* **Output:** Processed dataset saved to `data/processed/processed_fraud_data.csv`
-* **Features:** Handles datetime conversion, categorical encoding (with memory-safe handling of high-cardinality columns), scaling, and class balancing using SMOTE and undersampling.
+Key processing steps:
+
+* Datetime feature extraction
+* IP-based geolocation enrichment
+* Categorical encoding (with high-cardinality filtering)
+* Scaling and SMOTE-based balancing
+
+Final output: `data/processed/processed_fraud_data.csv`
 
 ---
 
-### 2. Exploratory Data Analysis (EDA)
+### 2. Exploratory Data Analysis & Feature Engineering
 
-Open the EDA notebook for detailed data exploration and feature engineering:
+Run the EDA notebook:
 
 ```bash
 jupyter notebook src/notebooks/01_eda_fraud_data.ipynb
 ```
 
-* Visualize data distributions, detect anomalies, and examine correlations.
-* Engineer advanced features such as:
+Insights include:
 
-  * Time-based features (e.g., time since signup, hour of day)
-  * Geolocation mapping from IP addresses
-  * Device/browser usage indicators
+* Distributions of transaction types, devices, and categories
+* Fraud patterns across time, location, and user behavior
+* Engineered features such as:
+
+  * `hour`, `day_of_week`, `time_since_signup`
+  * Mapped country from IP address
 
 ---
 
 ### 3. Model Training and Evaluation
 
-Train and evaluate machine learning models using:
+Train and evaluate classification models:
 
 ```bash
-python src/models/train_models.py
+jupyter notebook src/notebooks/02_model_training.ipynb
 ```
 
-* Models: Logistic Regression and LightGBM
-* Metrics: AUC-PR, F1-Score, Confusion Matrix, and Classification Reports
-* Visualizes Precision-Recall curves automatically.
-* **Note:** Model persistence (saving/loading models) functionality will be added soon.
+Models include:
+
+* Logistic Regression
+* LightGBM (selected as best performer)
+
+Metrics:
+
+* ROC-AUC, PR-AUC
+* F1-Score, precision, recall (with focus on fraud class)
+
+Best model is saved to:
+
+* `models/lightgbm_model.txt`
+* `models/logistic_regression_model.pkl`
+
+---
+
+### 4. Model Explainability (SHAP)
+
+Visualize and explain model predictions using SHAP:
+
+```bash
+jupyter notebook src/notebooks/03_model_explainability.ipynb
+```
+
+Interpretability analysis includes:
+
+* **SHAP Summary Plot**: Global feature importance across all predictions
+* **SHAP Force Plot**: Local explanation of individual fraud predictions
+
+Key insights:
+
+* Certain features (e.g., transaction amount, signup day, country risk level) significantly influence fraud detection
+* Force plots provide transparency into how the model flags individual transactions
 
 ---
 
 ## Key Features
 
-* **Class Imbalance Handling:** Combines SMOTE oversampling with random undersampling to balance classes.
-* **Feature Engineering:** Incorporates temporal, geolocation, and behavioral features for richer data representation.
-* **Modular Codebase:** Organized into reusable, maintainable components.
-* **Explainability:** Future integration of SHAP to provide transparent model insights.
+* ✅ **Class Imbalance Handling**: Uses SMOTE and undersampling techniques
+* ✅ **Feature Engineering**: Includes geolocation, temporal, and behavior-based features
+* ✅ **Interpretable Models**: SHAP-based insights into LightGBM decision-making
+* ✅ **Modular Pipeline**: Preprocessing, EDA, modeling, and explainability are separated for clarity
 
 ---
 
-## Requirements
+## Dependencies
 
 * Python 3.8+
-* `pandas`, `scikit-learn`, `imbalanced-learn`
-* `matplotlib`, `seaborn`
-* `jupyter`
+* pandas, numpy
+* scikit-learn
+* lightgbm
+* imbalanced-learn
+* shap
+* matplotlib, seaborn
+* jupyter
 
-Refer to `requirements.txt` for full details.
+All listed in `requirements.txt`
 
 ---
 
 ## Notes
 
-* High-cardinality columns such as `user_id`, `device_id`, and `ip_address` are dropped during preprocessing to prevent memory issues.
-* Apply data balancing only on training data to avoid data leakage.
-* Model saving/loading features are under development.
-* Contributions and suggestions are welcome to improve this project.
+* `user_id`, `device_id`, and `ip_address` are excluded to avoid overfitting and memory overload during encoding.
+* Class balancing is only applied on the training set to prevent leakage.
+* All modeling and SHAP explainability steps are now complete.
 
 ---
-
-## Contact & Contributions
-
-For questions or contributions, please open an issue or submit a pull request.
-
----
-
-```
-
-
