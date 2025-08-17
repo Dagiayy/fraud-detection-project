@@ -1,120 +1,194 @@
-# src/utils/preprocessor.py
+import pandas as pd
+import numpy as np
+from typing import Optional, List
+from sklearn.preprocessing import StandardScaler
+from imblearn.over_sampling import SMOTE
+from imblearn.under_sampling import RandomUnderSampler
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-from imblearn.over_sampling import SMOTE  # type: ignore
-from imblearn.under_sampling import RandomUnderSampler  # type: ignore
-from sklearn.preprocessing import StandardScaler, MinMaxScaler  # type: ignore
-import pandas as pd  # type: ignore
-from pathlib import Path
+class FraudPreprocessor:
+    """Preprocessor for fraud detection data with Phase 1 enhancements."""
 
+    def __init__(self, fraud_path: str, ip_path: str, credit_path: Optional[str] = None):
+        self.df_fraud = pd.read_csv(fraud_path)
+        self.df_ip = pd.read_csv(ip_path)
+        self.df_credit = pd.read_csv(credit_path) if credit_path else None
+        self.scaler = StandardScaler()
 
-def balance_classes(X, y, method='smote'):
-    """
-    Handles class imbalance using the specified method.
+    # -------------------------
+    # Basic Cleaning
+    # -------------------------
+    def handle_missing_values(self):
+        if self.df_fraud is not None:
+            self.df_fraud.fillna(self.df_fraud.median(numeric_only=True), inplace=True)
+            self.df_fraud.dropna(inplace=True)
+        if self.df_credit is not None:
+            self.df_credit.fillna(0, inplace=True)
 
-    Args:
-        X (DataFrame or ndarray): Features.
-        y (Series or ndarray): Target labels.
-        method (str): 'smote' or 'undersample'
+    def convert_datetimes(self):
+        for col in ['signup_time', 'purchase_time']:
+            if col in self.df_fraud.columns:
+                self.df_fraud[col] = pd.to_datetime(self.df_fraud[col])
+            else:
+                raise KeyError(f"Column '{col}' not found in Fraud_Data.csv")
 
-    Returns:
-        X_res, y_res: Resampled feature set and labels.
-    """
-    if method == 'smote':
-        smote = SMOTE(random_state=42)
-        X_res, y_res = smote.fit_resample(X, y)
-    elif method == 'undersample':
-        undersample = RandomUnderSampler(random_state=42)
-        X_res, y_res = undersample.fit_resample(X, y)
-    else:
-        raise ValueError("Method must be either 'smote' or 'undersample'.")
+    def clean_data(self):
+        if self.df_fraud is not None:
+            self.df_fraud.drop_duplicates(inplace=True)
+            for col in ['user_id', 'device_id']:
+                if col in self.df_fraud.columns:
+                    self.df_fraud.drop(columns=col, inplace=True)
+        if self.df_credit is not None:
+            self.df_credit.drop_duplicates(inplace=True)
 
-    return X_res, y_res
+    # -------------------------
+    # Feature Engineering
+    # -------------------------
+    def add_time_features(self):
+        df = self.df_fraud
+        df['hour_of_day'] = df['purchase_time'].dt.hour
+        df['day_of_week'] = df['purchase_time'].dt.dayofweek
+        df['time_since_signup'] = (df['purchase_time'] - df['signup_time']).dt.total_seconds() / 3600
+        self.df_fraud = df
 
+    def calculate_velocity(self):
+        df = self.df_fraud
+        df['time_since_signup'] = df['time_since_signup'].replace(0, np.nan)
+        df['spending_speed'] = df['purchase_value'] / df['time_since_signup']
+        df['spending_speed'] = df['spending_speed'].fillna(0)
+        self.df_fraud = df
 
-def scale_features(X, method='standard'):
-    """
-    Scales numerical features using StandardScaler or MinMaxScaler.
+    def add_transaction_frequency(self):
+        df = self.df_fraud
+        if 'user_id' in df.columns:
+            df['transaction_frequency'] = df.groupby('user_id')['purchase_time'].transform('count')
+        self.df_fraud = df
 
-    Args:
-        X (DataFrame or ndarray): Data to scale.
-        method (str): 'standard' or 'minmax'
+    # -------------------------
+    # Geolocation
+    # -------------------------
+    def merge_country(self):
+        df = self.df_fraud
+        df['ip_int'] = df['ip_address'].apply(lambda x: int(x) if not pd.isna(x) else 0)
+        self.df_ip['lower_bound_ip_address'] = self.df_ip['lower_bound_ip_address'].astype(int)
+        self.df_ip['upper_bound_ip_address'] = self.df_ip['upper_bound_ip_address'].astype(int)
 
-    Returns:
-        ndarray: Scaled data
-    """
-    scaler = StandardScaler() if method == 'standard' else MinMaxScaler()
-    X_scaled = scaler.fit_transform(X)
-    return X_scaled
+        bounds_list = list(zip(
+            self.df_ip['lower_bound_ip_address'],
+            self.df_ip['upper_bound_ip_address'],
+            self.df_ip['country']
+        ))
 
+        def fast_country_lookup(ip):
+            left, right = 0, len(bounds_list)-1
+            while left <= right:
+                mid = (left + right) // 2
+                low, high, country = bounds_list[mid]
+                if low <= ip <= high:
+                    return country
+                elif ip < low:
+                    right = mid - 1
+                else:
+                    left = mid + 1
+            return 'Unknown'
 
-def encode_categorical(X, categorical_columns=None, drop_first=True):
-    """
-    Applies One-Hot Encoding to specified categorical columns only if they exist.
+        df['country'] = df['ip_int'].apply(fast_country_lookup)
+        df.drop(columns=['ip_int', 'ip_address'], inplace=True)
+        self.df_fraud = df
 
-    Args:
-        X (DataFrame): Input features.
-        categorical_columns (list or None): List of categorical columns to encode. If None, uses default low-cardinality columns.
-        drop_first (bool): Whether to drop first dummy column.
+    # -------------------------
+    # Encoding / Scaling / Balance
+    # -------------------------
+    def encode_categorical(self, categorical_columns: Optional[List[str]] = None):
+        df = self.df_fraud
+        if categorical_columns is None:
+            categorical_columns = ['source', 'browser', 'sex', 'country']
+        cols_to_encode = [c for c in categorical_columns if c in df.columns]
+        if cols_to_encode:
+            df = pd.get_dummies(df, columns=cols_to_encode, drop_first=False)
+        self.df_fraud = df
 
-    Returns:
-        DataFrame: Encoded data.
-    """
-    if categorical_columns is None:
-        # Default low-cardinality columns to encode
-        categorical_columns = ['source', 'browser', 'sex']
+    def scale_features(self, numerical_columns: List[str]):
+        df = self.df_fraud
+        cols = [c for c in numerical_columns if c in df.columns]
+        df[cols] = self.scaler.fit_transform(df[cols])
+        self.df_fraud = df
 
-    # Keep only columns present in X
-    cols_to_encode = [col for col in categorical_columns if col in X.columns]
-    if not cols_to_encode:
-        print("⚠️ No categorical columns to encode.")
-        return X
+    def balance_classes(self, target_col='class', method='smote'):
+        df = self.df_fraud
+        X = df.drop(columns=[target_col])
+        # Drop any datetime columns before SMOTE
+        datetime_cols = X.select_dtypes(include=['datetime64[ns]']).columns.tolist()
+        if datetime_cols:
+            X = X.drop(columns=datetime_cols)
+        y = df[target_col]
+        sampler = SMOTE(random_state=42) if method == 'smote' else RandomUnderSampler(random_state=42)
+        X_res, y_res = sampler.fit_resample(X, y)
+        self.df_fraud = pd.concat([pd.DataFrame(X_res, columns=X.columns), pd.Series(y_res, name=target_col)], axis=1)
 
-    X_encoded = pd.get_dummies(X, columns=cols_to_encode, drop_first=drop_first)
-    return X_encoded
+    # -------------------------
+    # Enhanced EDA
+    # -------------------------
+    def plot_correlation_heatmap(self):
+        plt.figure(figsize=(12,8))
+        num_cols = self.df_fraud.select_dtypes(include=np.number).columns.tolist()
+        sns.heatmap(self.df_fraud[num_cols].corr(), annot=True, fmt=".2f", cmap='coolwarm')
+        plt.title("Correlation Heatmap")
+        plt.show()
 
+    def plot_class_distribution(self, target_col='class'):
+        sns.countplot(x=target_col, data=self.df_fraud)
+        plt.title("Class Distribution")
+        plt.show()
 
+    def pca_analysis(self, n_components=10):
+        if self.df_credit is not None:
+            X = self.df_credit[[f"V{i}" for i in range(1,29)]]
+            X_scaled = self.scaler.fit_transform(X)
+            pca = PCA(n_components=n_components)
+            pca.fit(X_scaled)
+            plt.figure(figsize=(10,6))
+            plt.plot(range(1, n_components+1), np.cumsum(pca.explained_variance_ratio_), marker='o')
+            plt.xlabel("Number of Components")
+            plt.ylabel("Cumulative Explained Variance")
+            plt.title("PCA Explained Variance")
+            plt.grid(True)
+            plt.show()
 
+    # -------------------------
+    # Save
+    # -------------------------
+    def save_processed_data(self, output_path):
+        self.df_fraud.to_csv(output_path, index=False)
+
+# -------------------------
+# Run full pipeline
+# -------------------------
 if __name__ == "__main__":
-    raw_data_path = Path("data/processed/processed_fraud_data.csv")
-    df = pd.read_csv(raw_data_path)
-    print("✅ Raw data loaded. Shape:", df.shape)
-    print("Columns:", df.columns.tolist())
+    preprocessor = FraudPreprocessor(
+        fraud_path="data/raw/Fraud_Data.csv",
+        ip_path="data/raw/IpAddress_to_Country.csv",
+        credit_path="data/raw/creditcard.csv"
+    )
 
-    high_cardinality_cols = ['user_id', 'device_id', 'ip_address']
+    preprocessor.handle_missing_values()
+    preprocessor.convert_datetimes()
+    preprocessor.add_time_features()
+    preprocessor.calculate_velocity()
+    preprocessor.add_transaction_frequency()
+    preprocessor.merge_country()
+    preprocessor.clean_data()
+    preprocessor.encode_categorical()
+    preprocessor.scale_features(
+        numerical_columns=['purchase_value','age','spending_speed','hour_of_day','day_of_week','time_since_signup']
+    )
+    preprocessor.balance_classes(target_col='class', method='smote')
 
-    # Drop columns only if they exist
-    cols_to_drop = ["class"] + [col for col in high_cardinality_cols if col in df.columns]
-    X = df.drop(columns=cols_to_drop)
-    y = df["class"]
+    # Optional EDA
+    preprocessor.plot_correlation_heatmap()
+    preprocessor.plot_class_distribution()
+    preprocessor.pca_analysis()
 
-    print("Target distribution before balancing:\n", y.value_counts())
-
-    # Convert datetime columns to numeric (unix timestamp) if they exist
-    for dt_col in ['signup_time', 'purchase_time']:
-        if dt_col in X.columns:
-            X[dt_col] = pd.to_datetime(X[dt_col]).astype(int) / 10**9
-
-    # Encode categorical features
-    X_encoded = encode_categorical(X)
-    print("✅ Encoding done. Encoded shape:", X_encoded.shape)
-
-    # Scale features
-    X_scaled = scale_features(X_encoded, method="standard")
-    print("✅ Scaling done. Example row:\n", X_scaled[0])
-
-    # Balance classes using SMOTE
-    X_balanced, y_balanced = balance_classes(X_scaled, y, method="smote")
-    print("✅ Class balancing done. New target distribution:\n", pd.Series(y_balanced).value_counts())
-
-    # Save processed data
-    processed_dir = Path("data/processed")
-    processed_dir.mkdir(parents=True, exist_ok=True)
-
-    processed_df = pd.DataFrame(X_balanced, columns=X_encoded.columns)
-    processed_df["class"] = y_balanced
-
-    save_path = processed_dir / "processed_fraud_data.csv"
-    processed_df.to_csv(save_path, index=False)
-    print(f"✅ Processed data saved to {save_path}")
-
-    print("\n🎉 Preprocessing pipeline test completed successfully.")
+    preprocessor.save_processed_data("data/processed/enhanced_processed_fraud_data.csv")
