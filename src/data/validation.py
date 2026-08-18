@@ -28,3 +28,7 @@ class DataQualityValidator:
             "invalid_amounts": invalid_amounts,
             "invalid_ages": invalid_ages,
         }
+
+def validate_csv_batch(filepath: str) -> bool:
+    df = pd.read_csv(filepath)
+    return DataQualityValidator(df).validate_schema()['is_valid']
