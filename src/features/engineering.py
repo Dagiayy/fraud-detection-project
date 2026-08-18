@@ -22,6 +22,7 @@ def add_time_features(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 def calculate_velocity(df: pd.DataFrame) -> pd.DataFrame:
+    """Calculate transaction spending speed (value / time_since_signup)."""
     """Calculate spending_speed = purchase_value / max(time_since_signup, 0.001)."""
     out = df.copy()
     if "purchase_value" in out.columns and "time_since_signup" in out.columns:
