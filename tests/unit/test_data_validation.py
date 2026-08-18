@@ -46,3 +46,7 @@ def test_negative_purchase_value():
     v = DataQualityValidator(df)
     rep = v.validate_schema()
     assert rep['invalid_amounts'] == 1
+
+def test_invalid_browser_fallback():
+    t = TransactionSchema(user_id=1, signup_time='2025-01-01', purchase_time='2025-01-01', purchase_value=10.0, age=20, ip_address=100, source='Ads', browser='UnknownBrowser', sex='M')
+    assert t.browser == 'Chrome'
