@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fraud-detection-system"
+version = "2.1.0"
+description = "Enterprise Fraud Detection System featuring zero-leakage ML pipeline, FastAPI REST API, Streamlit dashboard, SHAP explainability, and PSI data drift monitoring."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Adey Innovations Inc. Engineering Team", email = "engineering@adey-innovations.com" }
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Financial and Insurance Industry",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Office/Business :: Financial :: Investment"
+]
+dependencies = [
+    "numpy>=1.23.0",
+    "pandas>=1.5.0",
+    "scikit-learn>=1.2.0",
+    "lightgbm>=3.3.0",
+    "shap>=0.41.0",
+    "fastapi>=0.95.0",
+    "uvicorn>=0.20.0",
+    "pydantic>=2.0.0",
+    "streamlit>=1.20.0",
+    "plotly>=5.13.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.2.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.1.0",
+    "flake8>=6.0.0"
+]
+
+[project.scripts]
+fraud-detect = "scripts.run_pipeline:main"
+fraud-train = "scripts.train_model:main"
+fraud-eval = "scripts.evaluate_model:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*", "scripts*", "dashboard*"]
