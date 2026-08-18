@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional
 
 class TransactionSchema(BaseModel):
-    transaction_id: Optional[str] = Field(default=None, description="Unique transaction ID")
+    transaction_id: Optional[str] = Field(default=None, description="Unique UUID for transaction tracking")
     user_id: int = Field(..., description="Unique user identifier")
     signup_time: str = Field(..., description="ISO datetime string of user registration")
     purchase_time: str = Field(..., description="ISO datetime string of purchase")
