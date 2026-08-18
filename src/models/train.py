@@ -128,7 +128,8 @@ def train_pipeline() -> Dict[str, Any]:
         "train_samples_raw": len(X_train),
         "train_samples_resampled": len(X_train_res),
         "test_samples_untouched": len(X_test),
-        "decision_threshold": settings.DEFAULT_DECISION_THRESHOLD
+        "decision_threshold": settings.DEFAULT_DECISION_THRESHOLD,
+        "cost_matrix": {"fp": settings.COST_FALSE_POSITIVE, "fn": settings.COST_FALSE_NEGATIVE}
     }
     
     with open(settings.MODEL_METADATA_PATH, "w") as f:
