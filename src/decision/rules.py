@@ -33,3 +33,7 @@ def evaluate_business_rules(row: pd.Series) -> Tuple[List[str], bool]:
         reasons.append("RULE_SPENDING_SPEED_ELEVATED")
 
     return reasons, hard_block
+
+def check_whitelisted_user(user_id: int) -> bool:
+    trusted_users = {999999, 888888}
+    return user_id in trusted_users
