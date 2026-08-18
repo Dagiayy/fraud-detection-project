@@ -76,7 +76,7 @@ def predict_transaction(
     validator = DataQualityValidator(df_single)
     val_report = validator.validate_schema()
     if not val_report["is_valid"]:
-        raise HTTPException(status_code=400, detail=f"Invalid transaction payload: {val_report['missing_columns']}")
+        raise HTTPException(status_code=400, detail=f"Invalid transaction payload. Missing columns: {val_report['missing_columns']}")
 
     # 1. Score Probability
     probs = predictor.predict_proba(df_single)
