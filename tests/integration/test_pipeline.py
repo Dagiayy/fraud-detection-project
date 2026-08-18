@@ -25,3 +25,9 @@ def test_full_pipeline_integration():
         res = decision_engine.evaluate_transaction(df_proc.iloc[idx], prob)
         assert res["decision"] in ["ALLOW", "REVIEW", "BLOCK"]
         assert res["risk_band"] in ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+
+def test_large_batch_pipeline():
+    df_syn = generate_synthetic_transactions(num_records=100)
+    predictor = FraudPredictor()
+    probs = predictor.predict_proba(df_syn)
+    assert len(probs) == 100
