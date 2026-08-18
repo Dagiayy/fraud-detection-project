@@ -30,6 +30,6 @@ def evaluate_business_rules(row: pd.Series) -> Tuple[List[str], bool]:
 
     # Rule 4: High spending speed flag
     if spending_speed > 5.0:
-        reasons.append("RULE_HIGH_SPENDING_SPEED")
+        reasons.append("RULE_SPENDING_SPEED_ELEVATED")
 
     return reasons, hard_block
