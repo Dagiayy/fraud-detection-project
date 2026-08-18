@@ -27,7 +27,6 @@ class Settings(BaseModel):
     DEFAULT_DECISION_THRESHOLD: float = 0.35
     
     # API & Security (Configurable for Workflow 1 vs Workflow 2)
-    # Standard Workflow = False (No Auth needed), Production Workflow = True
     API_SECURITY_ENABLED: bool = os.getenv("FRAUD_API_SECURITY_ENABLED", "False").lower() in ("true", "1", "t")
     VALID_API_KEYS: List[str] = ["adey-fraud-secret-key-2025", "dev-test-key"]
     HASH_SALT: str = "adey_innovations_salt_2025"
@@ -53,8 +52,6 @@ class Settings(BaseModel):
     COST_FALSE_NEGATIVE: float = 150.0 # Average fraud loss
     COST_REVIEW: float = 5.0           # Manual investigation cost
 
-settings = Settings()
-
     # Cache & Feature Store
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
@@ -62,3 +59,5 @@ settings = Settings()
     # Model Hyperparameters
     MODEL_N_ESTIMATORS: int = 100
     MODEL_LEARNING_RATE: float = 0.05
+
+settings = Settings()

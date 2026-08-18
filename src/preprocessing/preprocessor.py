@@ -28,7 +28,6 @@ class FraudPreprocessor:
 
     def lookup_country(self, ip: int) -> str:
         """Perform O(log N) binary search lookup converting integer IP to country."""
-        """Binary search lookup converting integer IP to geographical country name."""
         if not self.bounds_list:
             return "Unknown"
         left, right = 0, len(self.bounds_list) - 1
@@ -45,6 +44,8 @@ class FraudPreprocessor:
 
     def clean_and_transform(self, df_raw: pd.DataFrame, is_training: bool = True) -> pd.DataFrame:
         df = df_raw.copy()
+        if df.empty:
+            return df
         
         # 1. Handle datetimes
         for col in ["signup_time", "purchase_time"]:
@@ -99,7 +100,7 @@ class FraudPreprocessor:
 
         # 6. Scaling Numerical Features
         num_cols = [c for c in settings.NUMERICAL_FEATURES if c in df.columns]
-        if num_cols:
+        if num_cols and not df.empty:
             if is_training or not hasattr(self.scaler, "mean_"):
                 df[num_cols] = self.scaler.fit_transform(df[num_cols])
             else:
