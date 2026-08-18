@@ -54,3 +54,7 @@ class Settings(BaseModel):
     COST_REVIEW: float = 5.0           # Manual investigation cost
 
 settings = Settings()
+
+    # Cache & Feature Store
+    REDIS_HOST: str = "localhost"
+    REDIS_PORT: int = 6379
