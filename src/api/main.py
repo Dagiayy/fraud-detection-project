@@ -1,5 +1,6 @@
 # src/api/main.py
 import uuid
+import sys
 import pandas as pd
 from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.responses import JSONResponse
