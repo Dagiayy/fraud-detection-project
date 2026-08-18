@@ -40,3 +40,9 @@ def test_age_boundary_validation():
     v = DataQualityValidator(df)
     rep = v.validate_schema()
     assert rep['invalid_ages'] == 1
+
+def test_negative_purchase_value():
+    df = pd.DataFrame({'user_id': [1], 'signup_time': ['2025-01-01'], 'purchase_time': ['2025-01-01'], 'purchase_value': [-50.0], 'age': [30], 'ip_address': [100], 'source': ['Ads'], 'browser': ['Chrome'], 'sex': ['M']})
+    v = DataQualityValidator(df)
+    rep = v.validate_schema()
+    assert rep['invalid_amounts'] == 1
