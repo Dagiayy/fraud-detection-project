@@ -27,6 +27,7 @@ class FraudPreprocessor:
         self.bounds_list = sorted(list(zip(lows, highs, countries)), key=lambda x: x[0])
 
     def lookup_country(self, ip: int) -> str:
+        """Perform O(log N) binary search lookup converting integer IP to country."""
         """Binary search lookup converting integer IP to geographical country name."""
         if not self.bounds_list:
             return "Unknown"
