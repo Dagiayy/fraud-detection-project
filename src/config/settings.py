@@ -58,3 +58,7 @@ settings = Settings()
     # Cache & Feature Store
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
+
+    # Model Hyperparameters
+    MODEL_N_ESTIMATORS: int = 100
+    MODEL_LEARNING_RATE: float = 0.05
