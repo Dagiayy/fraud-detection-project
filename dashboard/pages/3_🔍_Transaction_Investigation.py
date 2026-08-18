@@ -5,6 +5,7 @@ import plotly.express as px
 from dashboard.app import get_cached_raw_data
 from src.models.predict import FraudPredictor
 from src.decision.risk_engine import FraudDecisionEngine
+from src.decision.feedback import feedback_store
 from src.explainability.shap_explainer import FraudSHAPExplainer
 
 st.set_page_config(page_title="Transaction Investigation", layout="wide")
@@ -63,6 +64,24 @@ with col3:
     st.metric("Automated Decision", decision_out["decision"])
 
 st.write("**Triggered Policy Reason Codes:**", decision_out["reason_codes"] if decision_out["reason_codes"] else "None")
+
+# Section 3: Analyst Feedback Buttons
+st.subheader("📝 Analyst Investigation Feedback Loop")
+c_f1, c_f2, c_f3 = st.columns(3)
+user_id_val = int(df_raw.loc[selected_idx, 'user_id'])
+
+with c_f1:
+    if st.button("🚨 Confirm Fraud"):
+        rec = feedback_store.record_feedback(str(selected_idx), user_id_val, "CONFIRMED_FRAUD", "Marked by analyst")
+        st.error(f"Feedback recorded: Transaction {selected_idx} confirmed as FRAUD.")
+
+with c_f2:
+    if st.button("✅ Mark False Positive"):
+        rec = feedback_store.record_feedback(str(selected_idx), user_id_val, "FALSE_POSITIVE", "Whitelisted by analyst")
+        st.success(f"Feedback recorded: Transaction {selected_idx} marked as FALSE POSITIVE.")
+
+with c_f3:
+    st.caption(f"Total Feedback Submissions Recorded: {len(feedback_store.get_all_feedback())}")
 
 # SHAP Bar Chart
 st.subheader("SHAP Risk Contribution Breakdown")

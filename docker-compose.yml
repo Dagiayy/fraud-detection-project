@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: fraud_detection_api
+    ports:
+      - "8000:8000"
+    environment:
+      - FRAUD_API_SECURITY_ENABLED=True
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: always
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
+    container_name: fraud_detection_dashboard
+    ports:
+      - "8501:8501"
+    depends_on:
+      - api
+    restart: always
+
+  redis_cache:
+    image: redis:7-alpine
+    container_name: fraud_detection_redis
+    ports:
+      - "6379:6379"
+    restart: always

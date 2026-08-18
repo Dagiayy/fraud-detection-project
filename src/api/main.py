@@ -1,9 +1,9 @@
 # src/api/main.py
 import uuid
 import pandas as pd
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.responses import JSONResponse
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any, List
 
 from src.config import settings
@@ -12,14 +12,15 @@ from src.data.validation import DataQualityValidator
 from src.models.predict import FraudPredictor
 from src.decision.risk_engine import FraudDecisionEngine
 from src.explainability.shap_explainer import FraudSHAPExplainer
+from src.api.auth import verify_api_key
+from src.utils.security import hash_pii
 
 app = FastAPI(
     title="💳 Real-Time Fraud Detection REST API",
     description="Enterprise API providing real-time transaction fraud scoring, decision rules, and SHAP explainability.",
-    version="2.0.0"
+    version="2.1.0"
 )
 
-# Global services
 predictor = FraudPredictor()
 decision_engine = FraudDecisionEngine()
 shap_explainer = FraudSHAPExplainer()
@@ -35,7 +36,7 @@ async def add_request_metadata(request: Request, call_next):
 @app.get("/health", tags=["Monitoring"])
 def health_check() -> Dict[str, str]:
     """Health check endpoint."""
-    return {"status": "HEALTHY", "timestamp": datetime.utcnow().isoformat()}
+    return {"status": "HEALTHY", "timestamp": datetime.now(timezone.utc).isoformat()}
 
 @app.get("/ready", tags=["Monitoring"])
 def readiness_check() -> Dict[str, Any]:
@@ -48,11 +49,11 @@ def readiness_check() -> Dict[str, Any]:
     }
 
 @app.get("/model/info", tags=["Metadata"])
-def model_info() -> Dict[str, Any]:
+def model_info(api_key: str = Depends(verify_api_key)) -> Dict[str, Any]:
     """Returns model metadata and feature schema."""
     return {
         "model_type": "LightGBM Classifier (Production)",
-        "version": "2.0.0",
+        "version": "2.1.0",
         "decision_threshold": settings.DEFAULT_DECISION_THRESHOLD,
         "feature_count": len(predictor.feature_names),
         "feature_names": predictor.feature_names,
@@ -60,7 +61,10 @@ def model_info() -> Dict[str, Any]:
     }
 
 @app.post("/predict", tags=["Inference"])
-def predict_transaction(transaction: TransactionSchema) -> Dict[str, Any]:
+def predict_transaction(
+    transaction: TransactionSchema, 
+    api_key: str = Depends(verify_api_key)
+) -> Dict[str, Any]:
     """
     Score a single transaction payload.
     Returns fraud probability, decision (ALLOW/REVIEW/BLOCK), risk band, and SHAP explanations.
@@ -88,16 +92,23 @@ def predict_transaction(transaction: TransactionSchema) -> Dict[str, Any]:
     # 4. SHAP Explanation
     shap_out = shap_explainer.explain_transaction(df_proc)
 
+    # 5. PII Hashing for Security Audit
+    hashed_user = hash_pii(str(transaction.user_id))
+
     return {
         "transaction_id": transaction.transaction_id or str(uuid.uuid4()),
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "hashed_user_id": hashed_user,
         "score_results": decision_out,
         "explanation": shap_out,
-        "environment": "DEMO_SYNTHETIC"
+        "environment": "PRODUCTION_ENHANCED"
     }
 
 @app.post("/predict/batch", tags=["Inference"])
-def predict_batch(batch: BatchTransactionSchema) -> Dict[str, Any]:
+def predict_batch(
+    batch: BatchTransactionSchema,
+    api_key: str = Depends(verify_api_key)
+) -> Dict[str, Any]:
     """Score a batch of transactions."""
     txns = [t.model_dump(by_alias=True) for t in batch.transactions]
     df_batch = pd.DataFrame(txns)
@@ -114,6 +125,7 @@ def predict_batch(batch: BatchTransactionSchema) -> Dict[str, Any]:
         
         results.append({
             "user_id": int(row_raw.get("user_id", 0)),
+            "hashed_user_id": hash_pii(str(row_raw.get("user_id", 0))),
             "purchase_value": float(row_raw.get("purchase_value", 0.0)),
             "score_results": decision_out,
             "top_risk_factors": shap_out["top_positive_risk_factors"]

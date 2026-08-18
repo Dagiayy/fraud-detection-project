@@ -25,6 +25,11 @@ class Settings(BaseModel):
     TEST_SIZE: float = 0.2
     DEFAULT_DECISION_THRESHOLD: float = 0.35
     
+    # API & Security
+    API_SECURITY_ENABLED: bool = True
+    VALID_API_KEYS: List[str] = ["adey-fraud-secret-key-2025", "dev-test-key"]
+    HASH_SALT: str = "adey_innovations_salt_2025"
+    
     # Feature Configuration
     NUMERICAL_FEATURES: List[str] = [
         "purchase_value", "age", "spending_speed", 
