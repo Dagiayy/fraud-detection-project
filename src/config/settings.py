@@ -1,4 +1,5 @@
 # src/config/settings.py
+import os
 from pathlib import Path
 from pydantic import BaseModel
 from typing import List, Dict
@@ -25,8 +26,9 @@ class Settings(BaseModel):
     TEST_SIZE: float = 0.2
     DEFAULT_DECISION_THRESHOLD: float = 0.35
     
-    # API & Security
-    API_SECURITY_ENABLED: bool = True
+    # API & Security (Configurable for Workflow 1 vs Workflow 2)
+    # Standard Workflow = False (No Auth needed), Production Workflow = True
+    API_SECURITY_ENABLED: bool = os.getenv("FRAUD_API_SECURITY_ENABLED", "False").lower() in ("true", "1", "t")
     VALID_API_KEYS: List[str] = ["adey-fraud-secret-key-2025", "dev-test-key"]
     HASH_SALT: str = "adey_innovations_salt_2025"
     
