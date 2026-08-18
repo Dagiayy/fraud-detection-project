@@ -23,3 +23,9 @@ def test_preprocessor_pipeline_smoke():
     assert "spending_speed" in df_proc.columns
     assert "is_new_user" in df_proc.columns
     assert "user_id" not in df_proc.columns
+
+def test_preprocessor_empty_df():
+    df_empty = pd.DataFrame(columns=['user_id', 'signup_time', 'purchase_time', 'purchase_value', 'age', 'ip_address', 'source', 'browser', 'sex'])
+    p = FraudPreprocessor()
+    df_out = p.clean_and_transform(df_empty, is_training=False)
+    assert df_out.empty
