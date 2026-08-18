@@ -10,7 +10,7 @@ def get_logger(name: str = "FraudDetection") -> logging.Logger:
         handler = logging.StreamHandler(sys.stdout)
         formatter = logging.Formatter(
             '[%(asctime)s] [%(levelname)s] [%(name)s]: %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
+            datefmt='%Y-%m-%dT%H:%M:%S%z'
         )
         handler.setFormatter(formatter)
         logger.addHandler(handler)
