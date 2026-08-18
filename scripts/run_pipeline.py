@@ -15,6 +15,7 @@ from src.monitoring.drift import DataDriftDetector
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run Fraud Detection Pipeline.")
+    parser.add_argument('--verbose', action='store_true', help='Enable verbose output')
     parser.add_argument(
         "--mode", 
         type=str, 
