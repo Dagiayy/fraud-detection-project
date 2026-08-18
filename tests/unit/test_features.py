@@ -23,3 +23,8 @@ def test_feature_engineering_signals():
     
     # Row 1: signup 216 hours ago -> is_new_user = 0
     assert df_feat.loc[1, "is_new_user"] == 0
+
+def test_transaction_frequency():
+    df = pd.DataFrame({'user_id': [1, 1], 'purchase_time': ['2025-01-01', '2025-01-02']})
+    df_out = extract_all_features(df)
+    assert df_out['transaction_frequency'].iloc[0] == 2
