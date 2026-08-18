@@ -21,3 +21,7 @@ def test_decision_engine_block():
     result = engine.evaluate_transaction(row, probability=0.85)
     assert result["decision"] == "BLOCK"
     assert result["risk_band"] == "CRITICAL"
+
+def test_risk_band_critical():
+    engine = FraudDecisionEngine()
+    assert engine.get_risk_band(0.90) == 'CRITICAL'
