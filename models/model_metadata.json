@@ -1,0 +1,57 @@
+{
+  "model_type": "HistGradientBoosting Classifier",
+  "feature_names": [
+    "purchase_value",
+    "age",
+    "hour_of_day",
+    "day_of_week",
+    "time_since_signup",
+    "spending_speed",
+    "is_new_user",
+    "is_rapid_spender",
+    "is_high_value",
+    "transaction_frequency",
+    "source_Ads",
+    "source_Direct",
+    "source_SEO",
+    "browser_Chrome",
+    "browser_FireFox",
+    "browser_IE",
+    "browser_Opera",
+    "browser_Safari",
+    "sex_F",
+    "sex_M",
+    "country_China",
+    "country_United States",
+    "country_Unknown"
+  ],
+  "target_name": "class",
+  "evaluation_metrics": {
+    "roc_auc": 0.8746679810509598,
+    "auc_pr": 0.7356382827658463,
+    "f1_score": 0.7757575757575758,
+    "optimal_threshold": 0.5,
+    "best_f1_score": 0.7873015873015873,
+    "confusion_matrix": [
+      [
+        198,
+        61
+      ],
+      [
+        13,
+        128
+      ]
+    ],
+    "threshold_used": 0.35
+  },
+  "financial_cost_analysis": {
+    "total_cost_usd": 3505.0,
+    "baseline_cost_usd": 21150.0,
+    "net_savings_usd": 17645.0,
+    "savings_percentage": 83.42789598108747
+  },
+  "train_samples_raw": 1600,
+  "train_samples_resampled": 2068,
+  "test_samples_untouched": 400,
+  "decision_threshold": 0.35
+}
